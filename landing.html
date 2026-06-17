@@ -1,336 +1,1079 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>视频工厂 - 3 分钟出片</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#fafaf9;--text:#1c1917;--muted:#78716c;--accent:#292524;--border:#e7e5e4;--card:#fff;--green:#16a34a;--warm:#f5f0eb;--warm2:#e8ddd3;--peach:#f4a261}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>视频工厂 - 3 分钟出片</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --bg: #fafaf9;
+        --text: #1c1917;
+        --muted: #78716c;
+        --accent: #292524;
+        --border: #e7e5e4;
+        --card: #fff;
+        --green: #16a34a;
+        --warm: #f5f0eb;
+        --warm2: #e8ddd3;
+        --peach: #f4a261;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC",
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
 
-/* Nav */
-nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 5%;max-width:1200px;margin:0 auto}
-.logo{font-size:1.15rem;font-weight:700;letter-spacing:-0.02em;display:flex;align-items:center;gap:.5rem}
-.logo-dot{width:8px;height:8px;background:var(--peach);border-radius:50%}
-.nav-right{display:flex;align-items:center;gap:1.5rem}
-.nav-links a{color:var(--muted);text-decoration:none;font-size:.85rem;transition:color .2s}
-.nav-links a:hover{color:var(--text)}
-.nav-btn{padding:.5rem 1.2rem;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:.85rem;cursor:pointer;text-decoration:none;transition:transform .15s}
-.nav-btn:hover{transform:translateY(-1px)}
+      /* Nav */
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 5%;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .logo {
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .logo-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--peach);
+        border-radius: 50%;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+      .nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--text);
+      }
+      .nav-btn {
+        padding: 0.5rem 1.2rem;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 0.15s;
+      }
+      .nav-btn:hover {
+        transform: translateY(-1px);
+      }
 
-/* Hero */
-.hero{position:relative;max-width:1200px;margin:0 auto;padding:5rem 5% 3rem;text-align:center;overflow:hidden}
-.hero::before{content:"";position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,var(--warm) 0%,transparent 70%);opacity:.6;pointer-events:none}
-.hero::after{content:"";position:absolute;bottom:-50px;left:-50px;width:300px;height:300px;background:radial-gradient(circle,#fef3c7 0%,transparent 70%);opacity:.5;pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .8rem;background:var(--warm);border:1px solid var(--warm2);border-radius:100px;font-size:.75rem;color:var(--accent);margin-bottom:1.5rem;position:relative;z-index:1;opacity:0}
-.hero h1{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:700;letter-spacing:-0.03em;line-height:1.1;margin-bottom:1.2rem;position:relative;z-index:1;opacity:0}
-.hero h1 span{color:var(--peach)}
-.hero p{font-size:1.05rem;color:var(--muted);max-width:520px;margin:0 auto 2rem;position:relative;z-index:1;opacity:0}
-.hero-cta{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 2rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.95rem;font-weight:500;cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .15s;position:relative;z-index:1;opacity:0}
-.hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.hero-sub{margin-top:1rem;font-size:.78rem;color:var(--muted);position:relative;z-index:1;opacity:0}
+      /* Hero */
+      .hero {
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 5rem 5% 3rem;
+        text-align: center;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, var(--warm) 0%, transparent 70%);
+        opacity: 0.6;
+        pointer-events: none;
+      }
+      .hero::after {
+        content: "";
+        position: absolute;
+        bottom: -50px;
+        left: -50px;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, #fef3c7 0%, transparent 70%);
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.8rem;
+        background: var(--warm);
+        border: 1px solid var(--warm2);
+        border-radius: 100px;
+        font-size: 0.75rem;
+        color: var(--accent);
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 1;
+        opacity: 0;
+      }
+      .hero h1 {
+        font-size: clamp(2.2rem, 5vw, 3.8rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin-bottom: 1.2rem;
+        position: relative;
+        z-index: 1;
+        opacity: 0;
+      }
+      .hero h1 span {
+        color: var(--peach);
+      }
+      .hero p {
+        font-size: 1.05rem;
+        color: var(--muted);
+        max-width: 520px;
+        margin: 0 auto 2rem;
+        position: relative;
+        z-index: 1;
+        opacity: 0;
+      }
+      .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.85rem 2rem;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+        position: relative;
+        z-index: 1;
+        opacity: 0;
+      }
+      .hero-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      }
+      .hero-sub {
+        margin-top: 1rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+        position: relative;
+        z-index: 1;
+        opacity: 0;
+      }
 
-/* Stats */
-.stats{display:flex;justify-content:center;gap:3rem;margin:2rem auto 4rem;max-width:600px;position:relative;z-index:1}
-.stat{text-align:center;opacity:0}
-.stat-num{font-size:1.5rem;font-weight:700;letter-spacing:-0.02em}
-.stat-label{font-size:.75rem;color:var(--muted)}
+      /* Stats */
+      .stats {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin: 2rem auto 4rem;
+        max-width: 600px;
+        position: relative;
+        z-index: 1;
+      }
+      .stat {
+        text-align: center;
+        opacity: 0;
+      }
+      .stat-num {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .stat-label {
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
 
-/* Demo */
-.demo{max-width:960px;margin:0 auto 5rem;padding:0 5%;opacity:0}
-.demo-window{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.03),0 12px 40px rgba(0,0,0,.06)}
-.demo-bar{display:flex;align-items:center;gap:6px;padding:.65rem 1rem;border-bottom:1px solid var(--border);background:#fafaf9}
-.demo-dot{width:8px;height:8px;border-radius:50%;background:#e5e5e4}
-.demo-body{display:flex;min-height:380px}
-.demo-sidebar{width:200px;border-right:1px solid var(--border);padding:1rem 0;flex-shrink:0}
-.demo-sidebar-item{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;font-size:.8rem;color:var(--muted);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
-.demo-sidebar-item:hover,.demo-sidebar-item.active{color:var(--text);background:var(--warm);border-left-color:var(--peach)}
-.demo-sidebar-item .num{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:var(--border);border-radius:4px;font-size:.6rem;font-weight:600;color:var(--muted)}
-.demo-sidebar-item.active .num{background:var(--peach);color:#fff}
-.demo-main{flex:1;padding:1.5rem 2rem}
-.demo-main h3{font-size:.95rem;font-weight:600;margin-bottom:.3rem}
-.demo-main .desc{font-size:.78rem;color:var(--muted);margin-bottom:1rem}
-.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:2.5rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
-.upload-zone:hover{border-color:var(--peach);background:var(--warm)}
-.upload-zone p{color:var(--muted);font-size:.82rem;margin-top:.3rem}
-.upload-icon{font-size:1.5rem;color:var(--muted)}
+      /* Demo */
+      .demo {
+        max-width: 960px;
+        margin: 0 auto 5rem;
+        padding: 0 5%;
+        opacity: 0;
+      }
+      .demo-window {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow:
+          0 2px 4px rgba(0, 0, 0, 0.03),
+          0 12px 40px rgba(0, 0, 0, 0.06);
+      }
+      .demo-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.65rem 1rem;
+        border-bottom: 1px solid var(--border);
+        background: #fafaf9;
+      }
+      .demo-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #e5e5e4;
+      }
+      .demo-body {
+        display: flex;
+        min-height: 380px;
+      }
+      .demo-sidebar {
+        width: 200px;
+        border-right: 1px solid var(--border);
+        padding: 1rem 0;
+        flex-shrink: 0;
+      }
+      .demo-sidebar-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        border-left: 2px solid transparent;
+      }
+      .demo-sidebar-item:hover,
+      .demo-sidebar-item.active {
+        color: var(--text);
+        background: var(--warm);
+        border-left-color: var(--peach);
+      }
+      .demo-sidebar-item .num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        background: var(--border);
+        border-radius: 4px;
+        font-size: 0.6rem;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .demo-sidebar-item.active .num {
+        background: var(--peach);
+        color: #fff;
+      }
+      .demo-main {
+        flex: 1;
+        padding: 1.5rem 2rem;
+      }
+      .demo-main h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+      }
+      .demo-main .desc {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-bottom: 1rem;
+      }
+      .upload-zone {
+        border: 2px dashed var(--border);
+        border-radius: 10px;
+        padding: 2.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+      }
+      .upload-zone:hover {
+        border-color: var(--peach);
+        background: var(--warm);
+      }
+      .upload-zone p {
+        color: var(--muted);
+        font-size: 0.82rem;
+        margin-top: 0.3rem;
+      }
+      .upload-icon {
+        font-size: 1.5rem;
+        color: var(--muted);
+      }
 
-/* Modules */
-.modules{max-width:960px;margin:0 auto 5rem;padding:0 5%}
-.section-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.8rem}
-.section-title{font-size:1.8rem;font-weight:600;letter-spacing:-0.02em;margin-bottom:.5rem}
-.section-desc{color:var(--muted);margin-bottom:2rem;font-size:.9rem}
-.module-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
-.module-tab{padding:.45rem .9rem;border:1px solid var(--border);border-radius:6px;font-size:.78rem;cursor:pointer;background:var(--card);transition:all .15s}
-.module-tab:hover{border-color:var(--peach)}
-.module-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.module-content{display:none}
-.module-content.active{display:block}
-.module-card{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.module-item{padding:1.3rem;background:var(--card);border:1px solid var(--border);border-radius:10px;transition:border-color .2s,box-shadow .2s;opacity:0;transform:translateY(20px)}
-.module-item:hover{border-color:var(--peach);box-shadow:0 4px 12px rgba(244,162,97,.08)}
-.module-item h4{font-size:.88rem;font-weight:600;margin-bottom:.3rem;display:flex;align-items:center;gap:.4rem}
-.module-item h4 .dot{width:6px;height:6px;background:var(--peach);border-radius:50%}
-.module-item p{font-size:.78rem;color:var(--muted)}
-.tag{display:inline-block;padding:.15rem .5rem;background:var(--warm);border-radius:4px;font-size:.65rem;color:var(--accent);margin-top:.5rem}
+      /* Modules */
+      .modules {
+        max-width: 960px;
+        margin: 0 auto 5rem;
+        padding: 0 5%;
+      }
+      .section-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin-bottom: 0.8rem;
+      }
+      .section-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+      }
+      .section-desc {
+        color: var(--muted);
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
+      }
+      .module-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+      }
+      .module-tab {
+        padding: 0.45rem 0.9rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.78rem;
+        cursor: pointer;
+        background: var(--card);
+        transition: all 0.15s;
+      }
+      .module-tab:hover {
+        border-color: var(--peach);
+      }
+      .module-tab.active {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .module-content {
+        display: none;
+      }
+      .module-content.active {
+        display: block;
+      }
+      .module-card {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .module-item {
+        padding: 1.3rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      .module-item:hover {
+        border-color: var(--peach);
+        box-shadow: 0 4px 12px rgba(244, 162, 97, 0.08);
+      }
+      .module-item h4 {
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .module-item h4 .dot {
+        width: 6px;
+        height: 6px;
+        background: var(--peach);
+        border-radius: 50%;
+      }
+      .module-item p {
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .tag {
+        display: inline-block;
+        padding: 0.15rem 0.5rem;
+        background: var(--warm);
+        border-radius: 4px;
+        font-size: 0.65rem;
+        color: var(--accent);
+        margin-top: 0.5rem;
+      }
 
-/* Compare */
-.compare{max-width:760px;margin:0 auto 5rem;padding:0 5%}
-.compare-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;opacity:0}
-.compare-table th,.compare-table td{padding:.8rem 1.2rem;text-align:left;border-bottom:1px solid var(--border);font-size:.82rem}
-.compare-table th{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:500;background:var(--warm)}
-.compare-table tr:last-child td{border-bottom:none}
-.check{color:var(--green);font-weight:600}
+      /* Compare */
+      .compare {
+        max-width: 760px;
+        margin: 0 auto 5rem;
+        padding: 0 5%;
+      }
+      .compare-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        opacity: 0;
+      }
+      .compare-table th,
+      .compare-table td {
+        padding: 0.8rem 1.2rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.82rem;
+      }
+      .compare-table th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        font-weight: 500;
+        background: var(--warm);
+      }
+      .compare-table tr:last-child td {
+        border-bottom: none;
+      }
+      .check {
+        color: var(--green);
+        font-weight: 600;
+      }
 
-/* Pricing */
-.pricing{max-width:860px;margin:0 auto 5rem;padding:0 5%}
-.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
-.price-card{padding:1.8rem;background:var(--card);border:1px solid var(--border);border-radius:12px;text-align:center;transition:border-color .2s,box-shadow .2s;opacity:0;transform:translateY(30px)}
-.price-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.05)}
-.price-card.featured{border-color:var(--peach);position:relative;background:linear-gradient(180deg,var(--warm) 0%,var(--card) 40%)}
-.price-card.featured::before{content:"推荐";position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--peach);color:#fff;padding:.15rem .6rem;border-radius:100px;font-size:.7rem;font-weight:600}
-.price-name{font-size:.88rem;font-weight:600;margin-bottom:.3rem}
-.price-amount{font-size:2.2rem;font-weight:700;letter-spacing:-0.03em}
-.price-unit{font-size:.78rem;color:var(--muted)}
-.price-features{list-style:none;margin:1.2rem 0;text-align:left}
-.price-features li{padding:.3rem 0;font-size:.75rem;color:var(--muted)}
-.price-features li::before{content:"✓ ";color:var(--green)}
-.price-btn{display:block;width:100%;padding:.6rem;border:1px solid var(--border);border-radius:8px;background:transparent;font-size:.82rem;cursor:pointer;transition:all .15s;font-weight:500}
-.price-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
-.price-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+      /* Pricing */
+      .pricing {
+        max-width: 860px;
+        margin: 0 auto 5rem;
+        padding: 0 5%;
+      }
+      .price-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.2rem;
+      }
+      .price-card {
+        padding: 1.8rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        text-align: center;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      .price-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+      }
+      .price-card.featured {
+        border-color: var(--peach);
+        position: relative;
+        background: linear-gradient(180deg, var(--warm) 0%, var(--card) 40%);
+      }
+      .price-card.featured::before {
+        content: "推荐";
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--peach);
+        color: #fff;
+        padding: 0.15rem 0.6rem;
+        border-radius: 100px;
+        font-size: 0.7rem;
+        font-weight: 600;
+      }
+      .price-name {
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+      }
+      .price-amount {
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+      .price-unit {
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .price-features {
+        list-style: none;
+        margin: 1.2rem 0;
+        text-align: left;
+      }
+      .price-features li {
+        padding: 0.3rem 0;
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+      .price-features li::before {
+        content: "✓ ";
+        color: var(--green);
+      }
+      .price-btn {
+        display: block;
+        width: 100%;
+        padding: 0.6rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: transparent;
+        font-size: 0.82rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-weight: 500;
+      }
+      .price-btn:hover {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .price-btn.primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
 
-/* CTA */
-.cta{max-width:600px;margin:0 auto 5rem;padding:3rem 5%;text-align:center;background:linear-gradient(135deg,var(--warm) 0%,#fef3c7 100%);border-radius:16px;opacity:0}
-.cta h2{font-size:1.5rem;font-weight:600;margin-bottom:.6rem}
-.cta p{color:var(--muted);margin-bottom:1.5rem;font-size:.88rem}
+      /* CTA */
+      .cta {
+        max-width: 600px;
+        margin: 0 auto 5rem;
+        padding: 3rem 5%;
+        text-align: center;
+        background: linear-gradient(135deg, var(--warm) 0%, #fef3c7 100%);
+        border-radius: 16px;
+        opacity: 0;
+      }
+      .cta h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.6rem;
+      }
+      .cta p {
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+        font-size: 0.88rem;
+      }
 
-/* Footer */
-footer{border-top:1px solid var(--border);padding:1.5rem 5%;text-align:center;color:var(--muted);font-size:.78rem}
+      /* Footer */
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 1.5rem 5%;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
 
-@media(max-width:768px){
-  .module-card,.price-grid{grid-template-columns:1fr}
-  .demo-sidebar{display:none}
-  .demo-body{display:block}
-  .hero h1{font-size:1.8rem}
-  .nav-links{display:none}
-  .stats{gap:1.5rem}
-  .demo-main{padding:1rem}
-}
-</style>
-</head>
-<body>
-
-<nav>
-  <div class="logo"><div class="logo-dot"></div>视频工厂</div>
-  <div class="nav-right">
-    <div class="nav-links">
-      <a href="#modules">功能</a>
-      <a href="#pricing">定价</a>
-    </div>
-    <a href="#pricing" class="nav-btn">免费开始</a>
-  </div>
-</nav>
-
-<section class="hero">
-  <div class="hero-badge">内测中 · 免费体验</div>
-  <h1>3 分钟，把口播<br>变成<span>爆款短视频</span></h1>
-  <p>上传视频，AI 自动完成剪辑、字幕、配乐、封面。不用学剪辑，不用找素材，直接出片。</p>
-  <a href="#start" class="hero-cta">免费开始 →</a>
-  <div class="hero-sub">无需注册 · 每天免费 3 个视频</div>
-</section>
-
-<div class="stats">
-  <div class="stat"><div class="stat-num">3分钟</div><div class="stat-label">平均出片时间</div></div>
-  <div class="stat"><div class="stat-num">8项</div><div class="stat-label">AI 自动处理</div></div>
-  <div class="stat"><div class="stat-num">4种</div><div class="stat-label">平台风格适配</div></div>
-</div>
-
-<section class="demo">
-  <div class="demo-window">
-    <div class="demo-bar"><div class="demo-dot"></div><div class="demo-dot"></div><div class="demo-dot"></div></div>
-    <div class="demo-body">
-      <div class="demo-sidebar">
-        <div class="demo-sidebar-item active" onclick="showStep(1)"><span class="num">1</span> 获取文案</div>
-        <div class="demo-sidebar-item" onclick="showStep(2)"><span class="num">2</span> 文案仿写</div>
-        <div class="demo-sidebar-item" onclick="showStep(3)"><span class="num">3</span> 声音克隆</div>
-        <div class="demo-sidebar-item" onclick="showStep(4)"><span class="num">4</span> 数字人视频</div>
-        <div class="demo-sidebar-item" onclick="showStep(5)"><span class="num">5</span> 一键分发</div>
+      @media (max-width: 768px) {
+        .module-card,
+        .price-grid {
+          grid-template-columns: 1fr;
+        }
+        .demo-sidebar {
+          display: none;
+        }
+        .demo-body {
+          display: block;
+        }
+        .hero h1 {
+          font-size: 1.8rem;
+        }
+        .nav-links {
+          display: none;
+        }
+        .stats {
+          gap: 1.5rem;
+        }
+        .demo-main {
+          padding: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="logo">
+        <div class="logo-dot"></div>
+        视频工厂
       </div>
-      <div class="demo-main" id="demo-content">
-        <h3>1. 获取文案</h3>
-        <div class="desc">上传视频，AI 自动提取核心文案</div>
-        <div class="upload-zone"><div class="upload-icon">↑</div><p>拖拽视频到这里</p><p style="font-size:.68rem;margin-top:.2rem;color:#a8a29e">MP4、MOV、AVI · 最大 500MB</p></div>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a href="#modules">功能</a>
+          <a href="#pricing">定价</a>
+        </div>
+        <a href="#pricing" class="nav-btn">免费开始</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-badge">内测中 · 免费体验</div>
+      <h1>3 分钟，把口播<br />变成<span>爆款短视频</span></h1>
+      <p>
+        上传视频，AI
+        自动完成剪辑、字幕、配乐、封面。不用学剪辑，不用找素材，直接出片。
+      </p>
+      <a href="#start" class="hero-cta">免费开始 →</a>
+      <div class="hero-sub">无需注册 · 每天免费 3 个视频</div>
+    </section>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">3分钟</div>
+        <div class="stat-label">平均出片时间</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">8项</div>
+        <div class="stat-label">AI 自动处理</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">4种</div>
+        <div class="stat-label">平台风格适配</div>
       </div>
     </div>
-  </div>
-</section>
 
-<section class="modules" id="modules">
-  <div class="section-label">功能</div>
-  <div class="section-title">你需要的，我们都做了</div>
-  <div class="section-desc">选择你需要的功能，AI 自动帮你完成</div>
-  <div class="module-tabs">
-    <div class="module-tab active" onclick="showModule('all',this)">全部功能</div>
-    <div class="module-tab" onclick="showModule('video',this)">视频剪辑</div>
-    <div class="module-tab" onclick="showModule('content',this)">内容生成</div>
-    <div class="module-tab" onclick="showModule('publish',this)">发布分发</div>
-  </div>
-  <div class="module-content active" id="mod-all">
-    <div class="module-card">
-      <div class="module-item"><h4><span class="dot"></span>自动剪辑</h4><p>识别删除停顿、重复、口头禅</p><span class="tag">口播必备</span></div>
-      <div class="module-item"><h4><span class="dot"></span>智能字幕</h4><p>抖音黄字、简约白字等多种风格</p><span class="tag">多平台适配</span></div>
-      <div class="module-item"><h4><span class="dot"></span>文案生成</h4><p>提取核心观点，改写成短视频文案</p><span class="tag">一键仿写</span></div>
-      <div class="module-item"><h4><span class="dot"></span>自动生成标题</h4><p>3 个标题选项，选一个直接用</p><span class="tag">吸引点击</span></div>
-      <div class="module-item"><h4><span class="dot"></span>封面设计</h4><p>自动截取精彩画面 + 排版标题</p><span class="tag">专业排版</span></div>
-      <div class="module-item"><h4><span class="dot"></span>背景音乐</h4><p>自动匹配 BGM，音量自动平衡</p><span class="tag">专业混音</span></div>
-      <div class="module-item"><h4><span class="dot"></span>声音克隆</h4><p>用你的声音生成配音</p><span class="tag">专业版</span></div>
-      <div class="module-item"><h4><span class="dot"></span>数字人口播</h4><p>上传照片，生成数字人说话视频</p><span class="tag">专业版</span></div>
-    </div>
-  </div>
-  <div class="module-content" id="mod-video">
-    <div class="module-card">
-      <div class="module-item"><h4><span class="dot"></span>自动剪辑</h4><p>识别删除停顿、重复、口头禅</p><span class="tag">口播必备</span></div>
-      <div class="module-item"><h4><span class="dot"></span>智能字幕</h4><p>抖音黄字、简约白字等多种风格</p><span class="tag">多平台适配</span></div>
-      <div class="module-item"><h4><span class="dot"></span>背景音乐</h4><p>自动匹配 BGM，音量自动平衡</p><span class="tag">专业混音</span></div>
-      <div class="module-item"><h4><span class="dot"></span>封面设计</h4><p>自动截取精彩画面 + 排版标题</p><span class="tag">专业排版</span></div>
-    </div>
-  </div>
-  <div class="module-content" id="mod-content">
-    <div class="module-card">
-      <div class="module-item"><h4><span class="dot"></span>文案生成</h4><p>提取核心观点，改写成短视频文案</p><span class="tag">一键仿写</span></div>
-      <div class="module-item"><h4><span class="dot"></span>自动生成标题</h4><p>3 个标题选项，选一个直接用</p><span class="tag">吸引点击</span></div>
-      <div class="module-item"><h4><span class="dot"></span>声音克隆</h4><p>用你的声音生成配音</p><span class="tag">专业版</span></div>
-      <div class="module-item"><h4><span class="dot"></span>数字人口播</h4><p>上传照片，生成数字人说话视频</p><span class="tag">专业版</span></div>
-    </div>
-  </div>
-  <div class="module-content" id="mod-publish">
-    <div class="module-card">
-      <div class="module-item"><h4><span class="dot"></span>抖音适配</h4><p>自动裁剪 9:16 竖屏</p><span class="tag">全平台</span></div>
-      <div class="module-item"><h4><span class="dot"></span>小红书适配</h4><p>自动添加封面图</p><span class="tag">全平台</span></div>
-      <div class="module-item"><h4><span class="dot"></span>一键分发</h4><p>直接发布到多个平台</p><span class="tag">即将上线</span></div>
-      <div class="module-item"><h4><span class="dot"></span>批量处理</h4><p>一次上传多个视频</p><span class="tag">即将上线</span></div>
-    </div>
-  </div>
-</section>
+    <section class="demo">
+      <div class="demo-window">
+        <div class="demo-bar">
+          <div class="demo-dot"></div>
+          <div class="demo-dot"></div>
+          <div class="demo-dot"></div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-sidebar">
+            <div class="demo-sidebar-item active" onclick="showStep(1)">
+              <span class="num">1</span> 获取文案
+            </div>
+            <div class="demo-sidebar-item" onclick="showStep(2)">
+              <span class="num">2</span> 文案仿写
+            </div>
+            <div class="demo-sidebar-item" onclick="showStep(3)">
+              <span class="num">3</span> 声音克隆
+            </div>
+            <div class="demo-sidebar-item" onclick="showStep(4)">
+              <span class="num">4</span> 数字人视频
+            </div>
+            <div class="demo-sidebar-item" onclick="showStep(5)">
+              <span class="num">5</span> 一键分发
+            </div>
+          </div>
+          <div class="demo-main" id="demo-content">
+            <h3>1. 获取文案</h3>
+            <div class="desc">上传视频，AI 自动提取核心文案</div>
+            <div class="upload-zone">
+              <div class="upload-icon">↑</div>
+              <p>拖拽视频到这里</p>
+              <p style="font-size: 0.68rem; margin-top: 0.2rem; color: #a8a29e">
+                MP4、MOV、AVI · 最大 500MB
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<section class="compare">
-  <div class="section-label">对比</div>
-  <div class="section-title">和传统方式的区别</div>
-  <table class="compare-table">
-    <thead><tr><th></th><th>传统剪辑</th><th>视频工厂</th></tr></thead>
-    <tbody>
-      <tr><td>学习成本</td><td>需要学剪映/PR</td><td class="check">不用学</td></tr>
-      <tr><td>制作时间</td><td>1-2 小时</td><td class="check">3 分钟</td></tr>
-      <tr><td>字幕</td><td>手动打字</td><td class="check">自动生成</td></tr>
-      <tr><td>配乐</td><td>自己找音乐</td><td class="check">自动匹配</td></tr>
-      <tr><td>封面</td><td>手动设计</td><td class="check">自动生成</td></tr>
-      <tr><td>请人剪辑</td><td>50-200 元/条</td><td class="check">不限量</td></tr>
-    </tbody>
-  </table>
-</section>
+    <section class="modules" id="modules">
+      <div class="section-label">功能</div>
+      <div class="section-title">你需要的，我们都做了</div>
+      <div class="section-desc">选择你需要的功能，AI 自动帮你完成</div>
+      <div class="module-tabs">
+        <div class="module-tab active" onclick="showModule('all', this)">
+          全部功能
+        </div>
+        <div class="module-tab" onclick="showModule('video', this)">
+          视频剪辑
+        </div>
+        <div class="module-tab" onclick="showModule('content', this)">
+          内容生成
+        </div>
+        <div class="module-tab" onclick="showModule('publish', this)">
+          发布分发
+        </div>
+      </div>
+      <div class="module-content active" id="mod-all">
+        <div class="module-card">
+          <div class="module-item">
+            <h4><span class="dot"></span>自动剪辑</h4>
+            <p>识别删除停顿、重复、口头禅</p>
+            <span class="tag">口播必备</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>智能字幕</h4>
+            <p>抖音黄字、简约白字等多种风格</p>
+            <span class="tag">多平台适配</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>文案生成</h4>
+            <p>提取核心观点，改写成短视频文案</p>
+            <span class="tag">一键仿写</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>自动生成标题</h4>
+            <p>3 个标题选项，选一个直接用</p>
+            <span class="tag">吸引点击</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>封面设计</h4>
+            <p>自动截取精彩画面 + 排版标题</p>
+            <span class="tag">专业排版</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>背景音乐</h4>
+            <p>自动匹配 BGM，音量自动平衡</p>
+            <span class="tag">专业混音</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>声音克隆</h4>
+            <p>用你的声音生成配音</p>
+            <span class="tag">专业版</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>数字人口播</h4>
+            <p>上传照片，生成数字人说话视频</p>
+            <span class="tag">专业版</span>
+          </div>
+        </div>
+      </div>
+      <div class="module-content" id="mod-video">
+        <div class="module-card">
+          <div class="module-item">
+            <h4><span class="dot"></span>自动剪辑</h4>
+            <p>识别删除停顿、重复、口头禅</p>
+            <span class="tag">口播必备</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>智能字幕</h4>
+            <p>抖音黄字、简约白字等多种风格</p>
+            <span class="tag">多平台适配</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>背景音乐</h4>
+            <p>自动匹配 BGM，音量自动平衡</p>
+            <span class="tag">专业混音</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>封面设计</h4>
+            <p>自动截取精彩画面 + 排版标题</p>
+            <span class="tag">专业排版</span>
+          </div>
+        </div>
+      </div>
+      <div class="module-content" id="mod-content">
+        <div class="module-card">
+          <div class="module-item">
+            <h4><span class="dot"></span>文案生成</h4>
+            <p>提取核心观点，改写成短视频文案</p>
+            <span class="tag">一键仿写</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>自动生成标题</h4>
+            <p>3 个标题选项，选一个直接用</p>
+            <span class="tag">吸引点击</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>声音克隆</h4>
+            <p>用你的声音生成配音</p>
+            <span class="tag">专业版</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>数字人口播</h4>
+            <p>上传照片，生成数字人说话视频</p>
+            <span class="tag">专业版</span>
+          </div>
+        </div>
+      </div>
+      <div class="module-content" id="mod-publish">
+        <div class="module-card">
+          <div class="module-item">
+            <h4><span class="dot"></span>抖音适配</h4>
+            <p>自动裁剪 9:16 竖屏</p>
+            <span class="tag">全平台</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>小红书适配</h4>
+            <p>自动添加封面图</p>
+            <span class="tag">全平台</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>一键分发</h4>
+            <p>直接发布到多个平台</p>
+            <span class="tag">即将上线</span>
+          </div>
+          <div class="module-item">
+            <h4><span class="dot"></span>批量处理</h4>
+            <p>一次上传多个视频</p>
+            <span class="tag">即将上线</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<section class="pricing" id="pricing">
-  <div class="section-label">定价</div>
-  <div class="section-title">选一个适合你的方案</div>
-  <div class="price-grid">
-    <div class="price-card">
-      <div class="price-name">免费版</div>
-      <div class="price-amount">¥0</div>
-      <div class="price-unit">永久</div>
-      <ul class="price-features"><li>每天 3 个视频</li><li>基础字幕风格</li><li>带水印</li></ul>
-      <a href="#start" class="price-btn">免费体验</a>
-    </div>
-    <div class="price-card featured">
-      <div class="price-name">基础版</div>
-      <div class="price-amount">¥29</div>
-      <div class="price-unit">/月</div>
-      <ul class="price-features"><li>每天 30 个视频</li><li>全部字幕风格</li><li>无水印</li><li>自动生成标题</li></ul>
-      <a href="#start" class="price-btn primary">开始使用</a>
-    </div>
-    <div class="price-card">
-      <div class="price-name">专业版</div>
-      <div class="price-amount">¥99</div>
-      <div class="price-unit">/月</div>
-      <ul class="price-features"><li>不限量视频</li><li>声音克隆</li><li>数字人口播</li><li>优先处理</li></ul>
-      <a href="#start" class="price-btn">开始使用</a>
-    </div>
-  </div>
-</section>
+    <section class="compare">
+      <div class="section-label">对比</div>
+      <div class="section-title">和传统方式的区别</div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>传统剪辑</th>
+            <th>视频工厂</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>学习成本</td>
+            <td>需要学剪映/PR</td>
+            <td class="check">不用学</td>
+          </tr>
+          <tr>
+            <td>制作时间</td>
+            <td>1-2 小时</td>
+            <td class="check">3 分钟</td>
+          </tr>
+          <tr>
+            <td>字幕</td>
+            <td>手动打字</td>
+            <td class="check">自动生成</td>
+          </tr>
+          <tr>
+            <td>配乐</td>
+            <td>自己找音乐</td>
+            <td class="check">自动匹配</td>
+          </tr>
+          <tr>
+            <td>封面</td>
+            <td>手动设计</td>
+            <td class="check">自动生成</td>
+          </tr>
+          <tr>
+            <td>请人剪辑</td>
+            <td>50-200 元/条</td>
+            <td class="check">不限量</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
-<section class="cta" id="start">
-  <h2>现在就开始</h2>
-  <p>不用注册，不用付费。上传视频，3 分钟后下载成品。</p>
-  <a href="http://127.0.0.1:8503" class="hero-cta">打开视频工厂 →</a>
-</section>
+    <section class="pricing" id="pricing">
+      <div class="section-label">定价</div>
+      <div class="section-title">选一个适合你的方案</div>
+      <div class="price-grid">
+        <div class="price-card">
+          <div class="price-name">免费版</div>
+          <div class="price-amount">¥0</div>
+          <div class="price-unit">永久</div>
+          <ul class="price-features">
+            <li>每天 3 个视频</li>
+            <li>基础字幕风格</li>
+            <li>带水印</li>
+          </ul>
+          <a href="#start" class="price-btn">免费体验</a>
+        </div>
+        <div class="price-card featured">
+          <div class="price-name">基础版</div>
+          <div class="price-amount">¥29</div>
+          <div class="price-unit">/月</div>
+          <ul class="price-features">
+            <li>每天 30 个视频</li>
+            <li>全部字幕风格</li>
+            <li>无水印</li>
+            <li>自动生成标题</li>
+          </ul>
+          <a href="#start" class="price-btn primary">开始使用</a>
+        </div>
+        <div class="price-card">
+          <div class="price-name">专业版</div>
+          <div class="price-amount">¥99</div>
+          <div class="price-unit">/月</div>
+          <ul class="price-features">
+            <li>不限量视频</li>
+            <li>声音克隆</li>
+            <li>数字人口播</li>
+            <li>优先处理</li>
+          </ul>
+          <a href="#start" class="price-btn">开始使用</a>
+        </div>
+      </div>
+    </section>
 
-<footer><p>© 2024 视频工厂 · 用 AI 让视频制作更简单</p></footer>
+    <section class="cta" id="start">
+      <h2>现在就开始</h2>
+      <p>不用注册，不用付费。上传视频，3 分钟后下载成品。</p>
+      <a href="http://127.0.0.1:8503" class="hero-cta">打开视频工厂 →</a>
+    </section>
 
-<script>
-// GSAP 动画
-gsap.registerPlugin(ScrollTrigger);
+    <footer><p>© 2024 视频工厂 · 用 AI 让视频制作更简单</p></footer>
 
-// Hero 入场动画
-const heroTl = gsap.timeline({defaults:{duration:0.8,ease:"power3.out"}});
-heroTl.to(".hero-badge",{opacity:1,y:0,delay:0.2})
-  .to(".hero h1",{opacity:1,y:0},"-=0.5")
-  .to(".hero p",{opacity:1,y:0},"-=0.5")
-  .to(".hero-cta",{opacity:1,y:0},"-=0.4")
-  .to(".hero-sub",{opacity:1,y:0},"-=0.3");
+    <script>
+      // GSAP 动画
+      gsap.registerPlugin(ScrollTrigger);
 
-// Stats 计数动画
-gsap.utils.toArray(".stat").forEach((el,i)=>{
-  gsap.to(el,{opacity:1,y:0,duration:0.6,delay:0.3*i,scrollTrigger:{trigger:el,start:"top 85%"}});
-});
+      // Hero 入场动画
+      const heroTl = gsap.timeline({
+        defaults: { duration: 0.8, ease: "power3.out" },
+      });
+      heroTl
+        .to(".hero-badge", { opacity: 1, y: 0, delay: 0.2 })
+        .to(".hero h1", { opacity: 1, y: 0 }, "-=0.5")
+        .to(".hero p", { opacity: 1, y: 0 }, "-=0.5")
+        .to(".hero-cta", { opacity: 1, y: 0 }, "-=0.4")
+        .to(".hero-sub", { opacity: 1, y: 0 }, "-=0.3");
 
-// Demo 滚入
-gsap.to(".demo",{opacity:1,y:0,duration:0.8,scrollTrigger:{trigger:".demo",start:"top 80%"},y:40});
+      // Stats 计数动画
+      gsap.utils.toArray(".stat").forEach((el, i) => {
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          delay: 0.3 * i,
+          scrollTrigger: { trigger: el, start: "top 85%" },
+        });
+      });
 
-// Module items 逐个出现
-gsap.utils.toArray(".module-item").forEach((el,i)=>{
-  gsap.to(el,{opacity:1,y:0,duration:0.5,delay:i*0.08,scrollTrigger:{trigger:el,start:"top 85%"}});
-});
+      // Demo 滚入
+      gsap.to(".demo", {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        scrollTrigger: { trigger: ".demo", start: "top 80%" },
+        y: 40,
+      });
 
-// Compare table
-gsap.to(".compare-table",{opacity:1,y:0,duration:0.8,scrollTrigger:{trigger:".compare-table",start:"top 80%"},y:30});
+      // Module items 逐个出现
+      gsap.utils.toArray(".module-item").forEach((el, i) => {
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          delay: i * 0.08,
+          scrollTrigger: { trigger: el, start: "top 85%" },
+        });
+      });
 
-// Price cards 逐个出现
-gsap.utils.toArray(".price-card").forEach((el,i)=>{
-  gsap.to(el,{opacity:1,y:0,duration:0.6,delay:i*0.15,scrollTrigger:{trigger:el,start:"top 85%"}});
-});
+      // Compare table
+      gsap.to(".compare-table", {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        scrollTrigger: { trigger: ".compare-table", start: "top 80%" },
+        y: 30,
+      });
 
-// CTA
-gsap.to(".cta",{opacity:1,y:0,duration:0.8,scrollTrigger:{trigger:".cta",start:"top 85%"},y:30});
+      // Price cards 逐个出现
+      gsap.utils.toArray(".price-card").forEach((el, i) => {
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          delay: i * 0.15,
+          scrollTrigger: { trigger: el, start: "top 85%" },
+        });
+      });
 
-// 模块切换
-function showModule(id,el){
-  document.querySelectorAll('.module-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.module-content').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('mod-'+id).classList.add('active');
-  // 重新触发 item 动画
-  gsap.utils.toArray('#mod-'+id+' .module-item').forEach((el,i)=>{
-    gsap.fromTo(el,{opacity:0,y:20},{opacity:1,y:0,duration:0.4,delay:i*0.08});
-  });
-}
+      // CTA
+      gsap.to(".cta", {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        scrollTrigger: { trigger: ".cta", start: "top 85%" },
+        y: 30,
+      });
 
-// 步骤切换
-const steps={
-1:{title:'1. 获取文案',desc:'上传视频，AI 自动提取核心文案',content:'<div class="upload-zone"><div class="upload-icon">↑</div><p>拖拽视频到这里</p><p style="font-size:.68rem;margin-top:.2rem;color:#a8a29e">MP4、MOV、AVI · 最大 500MB</p></div>'},
-2:{title:'2. 文案仿写',desc:'选择平台风格，AI 自动改写',content:'<div style="display:flex;gap:.4rem;margin-bottom:.8rem"><span style="padding:.25rem .7rem;background:var(--peach);color:#fff;border-radius:4px;font-size:.7rem">抖音</span><span style="padding:.25rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">小红书</span><span style="padding:.25rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">视频号</span></div><div style="background:var(--warm);border:1px solid var(--warm2);border-radius:8px;padding:1rem;min-height:100px;font-size:.78rem;color:var(--muted)">原文内容会显示在这里，点击「智能仿写」后 AI 会生成适合抖音风格的文案...</div><button style="margin-top:.6rem;padding:.4rem .8rem;background:var(--peach);color:#fff;border:none;border-radius:5px;font-size:.75rem;cursor:pointer">智能仿写 →</button>'},
-3:{title:'3. 声音克隆',desc:'选择声音风格，AI 用你的声音配音',content:'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem"><span style="padding:.25rem .7rem;background:var(--peach);color:#fff;border-radius:4px;font-size:.7rem">温柔女声</span><span style="padding:.25rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">新闻播报</span><span style="padding:.25rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">活泼女声</span><span style="padding:.25rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">沉稳男声</span></div><div style="background:var(--warm);border:1px solid var(--warm2);border-radius:8px;padding:.8rem;font-size:.78rem;color:var(--muted)">仿写后的文案会显示在这里...</div><div style="display:flex;gap:.4rem;margin-top:.6rem"><button style="padding:.4rem .8rem;background:var(--peach);color:#fff;border:none;border-radius:5px;font-size:.75rem;cursor:pointer">生成语音</button><button style="padding:.4rem .8rem;border:1px solid var(--border);border-radius:5px;font-size:.75rem;cursor:pointer;background:transparent">试听</button></div>'},
-4:{title:'4. 数字人视频',desc:'上传照片，AI 生成数字人说话',content:'<div style="display:flex;gap:.8rem"><div style="flex:1;border:2px dashed var(--border);border-radius:8px;padding:2rem;text-align:center;font-size:.78rem;color:var(--muted);cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor=\'var(--peach)\'" onmouseout="this.style.borderColor=\'var(--border)\'"><div style="font-size:1.2rem;margin-bottom:.2rem">📷</div>上传一张正面照片</div><div style="flex:1;border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;font-size:.78rem;color:var(--muted)"><div style="font-size:1.2rem;margin-bottom:.2rem">🎬</div>生成数字人视频<br><small style="font-size:.65rem;color:#a8a29e">需要 GPU 支持</small></div></div>'},
-5:{title:'5. 一键分发',desc:'选择平台，一键发布',content:'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem"><span style="padding:.3rem .7rem;background:var(--peach);color:#fff;border-radius:4px;font-size:.7rem">✓ 抖音</span><span style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">小红书</span><span style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">视频号</span><span style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">B站</span></div><input style="width:100%;padding:.4rem .6rem;border:1px solid var(--border);border-radius:5px;font-size:.78rem;margin-bottom:.4rem" placeholder="视频标题"><textarea style="width:100%;padding:.4rem .6rem;border:1px solid var(--border);border-radius:5px;font-size:.78rem;height:50px;resize:none" placeholder="视频描述..."></textarea><button style="margin-top:.4rem;padding:.4rem 1rem;background:var(--peach);color:#fff;border:none;border-radius:5px;font-size:.75rem;cursor:pointer">开始分发 →</button>'}
-};
-function showStep(n){
-  document.querySelectorAll('.demo-sidebar-item').forEach((el,i)=>{el.classList.toggle('active',i===n-1)});
-  const s=steps[n];
-  const content=document.getElementById('demo-content');
-  content.innerHTML='<h3>'+s.title+'</h3><div class="desc">'+s.desc+'</div>'+s.content;
-  gsap.fromTo(content,{opacity:0,x:20},{opacity:1,x:0,duration:0.3});
-}
-</script>
-</body>
+      // 模块切换
+      function showModule(id, el) {
+        document
+          .querySelectorAll(".module-tab")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".module-content")
+          .forEach((c) => c.classList.remove("active"));
+        el.classList.add("active");
+        document.getElementById("mod-" + id).classList.add("active");
+        // 重新触发 item 动画
+        gsap.utils.toArray("#mod-" + id + " .module-item").forEach((el, i) => {
+          gsap.fromTo(
+            el,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.4, delay: i * 0.08 },
+          );
+        });
+      }
+
+      // 步骤切换
+      const steps = {
+        1: {
+          title: "1. 获取文案",
+          desc: "上传视频，AI 自动提取核心文案",
+          content:
+            '<div class="upload-zone"><div class="upload-icon">↑</div><p>拖拽视频到这里</p><p style="font-size:.68rem;margin-top:.2rem;color:#a8a29e">MP4、MOV、AVI · 最大 500MB</p></div>',
+        },
+        2: {
+          title: "2. 文案仿写",
+          desc: "选择平台风格，AI 自动改写",
+          content:
+            '<div style="display:flex;gap:.4rem;margin-bottom:.8rem"><span style="padding:.25rem .7rem;background:var(--peach);color:#fff;border-radius:4px;font-size:.7rem">抖音</span><span style="padding:.25rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">小红书</span><span style="padding:.25rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">视频号</span></div><div style="background:var(--warm);border:1px solid var(--warm2);border-radius:8px;padding:1rem;min-height:100px;font-size:.78rem;color:var(--muted)">原文内容会显示在这里，点击「智能仿写」后 AI 会生成适合抖音风格的文案...</div><button style="margin-top:.6rem;padding:.4rem .8rem;background:var(--peach);color:#fff;border:none;border-radius:5px;font-size:.75rem;cursor:pointer">智能仿写 →</button>',
+        },
+        3: {
+          title: "3. 声音克隆",
+          desc: "选择声音风格，AI 用你的声音配音",
+          content:
+            '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem"><span style="padding:.25rem .7rem;background:var(--peach);color:#fff;border-radius:4px;font-size:.7rem">温柔女声</span><span style="padding:.25rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">新闻播报</span><span style="padding:.25rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">活泼女声</span><span style="padding:.25rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">沉稳男声</span></div><div style="background:var(--warm);border:1px solid var(--warm2);border-radius:8px;padding:.8rem;font-size:.78rem;color:var(--muted)">仿写后的文案会显示在这里...</div><div style="display:flex;gap:.4rem;margin-top:.6rem"><button style="padding:.4rem .8rem;background:var(--peach);color:#fff;border:none;border-radius:5px;font-size:.75rem;cursor:pointer">生成语音</button><button style="padding:.4rem .8rem;border:1px solid var(--border);border-radius:5px;font-size:.75rem;cursor:pointer;background:transparent">试听</button></div>',
+        },
+        4: {
+          title: "4. 数字人视频",
+          desc: "上传照片，AI 生成数字人说话",
+          content:
+            '<div style="display:flex;gap:.8rem"><div style="flex:1;border:2px dashed var(--border);border-radius:8px;padding:2rem;text-align:center;font-size:.78rem;color:var(--muted);cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor=\'var(--peach)\'" onmouseout="this.style.borderColor=\'var(--border)\'"><div style="font-size:1.2rem;margin-bottom:.2rem">📷</div>上传一张正面照片</div><div style="flex:1;border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;font-size:.78rem;color:var(--muted)"><div style="font-size:1.2rem;margin-bottom:.2rem">🎬</div>生成数字人视频<br><small style="font-size:.65rem;color:#a8a29e">需要 GPU 支持</small></div></div>',
+        },
+        5: {
+          title: "5. 一键分发",
+          desc: "选择平台，一键发布",
+          content:
+            '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem"><span style="padding:.3rem .7rem;background:var(--peach);color:#fff;border-radius:4px;font-size:.7rem">✓ 抖音</span><span style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">小红书</span><span style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">视频号</span><span style="padding:.3rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem">B站</span></div><input style="width:100%;padding:.4rem .6rem;border:1px solid var(--border);border-radius:5px;font-size:.78rem;margin-bottom:.4rem" placeholder="视频标题"><textarea style="width:100%;padding:.4rem .6rem;border:1px solid var(--border);border-radius:5px;font-size:.78rem;height:50px;resize:none" placeholder="视频描述..."></textarea><button style="margin-top:.4rem;padding:.4rem 1rem;background:var(--peach);color:#fff;border:none;border-radius:5px;font-size:.75rem;cursor:pointer">开始分发 →</button>',
+        },
+      };
+      function showStep(n) {
+        document.querySelectorAll(".demo-sidebar-item").forEach((el, i) => {
+          el.classList.toggle("active", i === n - 1);
+        });
+        const s = steps[n];
+        const content = document.getElementById("demo-content");
+        content.innerHTML =
+          "<h3>" +
+          s.title +
+          '</h3><div class="desc">' +
+          s.desc +
+          "</div>" +
+          s.content;
+        gsap.fromTo(
+          content,
+          { opacity: 0, x: 20 },
+          { opacity: 1, x: 0, duration: 0.3 },
+        );
+      }
+    </script>
+  </body>
 </html>
