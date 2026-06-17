@@ -1,13 +1,13 @@
 """
-文案模块 - 提取文案 + AI 仿写 + 标题生成
-接入 MiMo LLM
+文案模块 - 合并为 1 次 LLM 调用
+提取文案 + 仿写 + 标题 + 封面文字 → 一次搞定
 """
 
 import os
+import json
 import requests
 from loguru import logger
 
-# MiMo API 配置 - 从环境变量读取，禁止硬编码
 API_KEY = os.environ.get("MIMO_API_KEY", "")
 API_URL = "https://api.xiaomimimo.com/v1/chat/completions"
 MODEL = "mimo-v2.5-pro"
@@ -40,108 +40,77 @@ def _call_llm(prompt: str, system: str = "") -> str:
         return ""
 
 
-def extract_copy(transcript: str) -> str:
-    """从转录文字中提取核心文案"""
-    logger.info("提取核心文案...")
-    prompt = f"""从以下视频转录文字中，提取核心观点和金句，整理成简洁的文案。
-去掉口头禅、重复、废话，保留有价值的内容。
+def generate_all_copy(transcript: str, template: str = "douyin") -> dict:
+    """
+    一次 LLM 调用生成所有文案内容
+    返回: {"copy": 仿写文案, "title": 标题, "cover_main": 封面主标题, "cover_sub": 封面副标题}
+    """
+    logger.info(f"AI 生成所有文案 [{template}]...")
 
-转录文字：
-{transcript}
-
-要求：
-1. 保留核心观点
-2. 去掉"嗯"、"啊"、"就是说"等口头禅
-3. 语句通顺，适合短视频文案
-4. 长度控制在 200 字以内"""
-
-    result = _call_llm(prompt, system="你是一个专业的短视频文案编辑。")
-    return result if result else transcript
-
-
-def rewrite_copy(original: str, style: str = "douyin") -> str:
-    """AI 仿写文案"""
-    logger.info(f"AI 仿写文案 [{style}]...")
-
-    style_prompts = {
+    style_map = {
         "douyin": "短视频爆款风格，节奏快，有钩子，有反转，适合 15-30 秒",
         "knowledge": "知识分享风格，专业但易懂，有干货，适合 1-2 分钟",
         "product": "产品介绍风格，突出卖点，有说服力，适合 30 秒",
         "festival": "节日营销风格，喜庆热闹，有优惠信息，适合 15-30 秒",
     }
 
-    style_desc = style_prompts.get(style, style_prompts["douyin"])
+    prompt = f"""你是一个短视频文案高手。请根据以下视频转录文字，一次性完成以下任务：
 
-    prompt = f"""请根据以下原文，仿写一段短视频文案。
+转录文字：
+{transcript[:1000]}
 
-原文：
-{original}
+视频类型：{style_map.get(template, style_map['douyin'])}
 
-要求：
-1. 风格：{style_desc}
-2. 保留原文核心意思
-3. 语言口语化，适合真人出镜
-4. 开头要有钩子（吸引注意力）
-5. 结尾要有行动号召
-6. 长度：100-300 字"""
+请严格按照以下 JSON 格式返回（不要加任何其他文字）：
+{{
+    "copy": "仿写后的短视频文案（100-300字，口语化，适合真人出镜）",
+    "title": "视频标题（15-25字，吸引点击）",
+    "cover_main": "封面主标题（6-10个字，大号加粗）",
+    "cover_sub": "封面副标题（10-20个字，补充说明）"
+}}"""
 
-    result = _call_llm(prompt, system="你是一个短视频文案高手，擅长写爆款文案。")
-    return result if result else original
+    result = _call_llm(prompt, system="你是一个专业的内容创作专家。只返回JSON，不要其他内容。")
 
+    if result:
+        # 清理可能的 markdown 代码块
+        clean = result.strip()
+        if clean.startswith("```"):
+            clean = clean.split("\n", 1)[1]
+        if clean.endswith("```"):
+            clean = clean.rsplit("```", 1)[0]
+        clean = clean.strip()
+
+        try:
+            data = json.loads(clean)
+            logger.info("文案生成完成")
+            return {
+                "copy": data.get("copy", transcript),
+                "title": data.get("title", "AI 生成视频"),
+                "cover_main": data.get("cover_main", "AI 视频"),
+                "cover_sub": data.get("cover_sub", ""),
+            }
+        except json.JSONDecodeError:
+            logger.warning(f"LLM 返回非 JSON: {clean[:100]}")
+
+    # 降级：返回原文
+    return {
+        "copy": transcript,
+        "title": "AI 生成视频",
+        "cover_main": "AI 视频",
+        "cover_sub": "",
+    }
+
+
+# 保留旧接口兼容
+def extract_copy(transcript: str) -> str:
+    return generate_all_copy(transcript)["copy"]
+
+def rewrite_copy(original: str, style: str = "douyin") -> str:
+    return generate_all_copy(original, style)["copy"]
 
 def generate_title(content: str, template: str = "douyin") -> str:
-    """生成视频标题"""
-    logger.info("生成视频标题...")
-
-    prompt = f"""为以下短视频内容生成 3 个标题选项，用户会选择最好的一个。
-
-内容：
-{content[:300]}
-
-模板类型：{template}
-
-要求：
-1. 标题要吸引点击
-2. 包含关键词，利于搜索
-3. 不要标题党，要真实
-4. 每个标题 15-25 字
-5. 用 | 分隔三个标题"""
-
-    result = _call_llm(prompt, system="你是一个短视频运营专家。")
-    if result:
-        # 取第一个标题
-        titles = [t.strip() for t in result.split("|") if t.strip()]
-        return titles[0] if titles else result.split("\n")[0]
-    return "AI 生成视频"
-
+    return generate_all_copy(content, template)["title"]
 
 def generate_cover_text(content: str) -> dict:
-    """生成封面文字"""
-    logger.info("生成封面文字...")
-
-    prompt = f"""为以下短视频内容生成封面文字。
-
-内容：
-{content[:300]}
-
-要求：
-1. 主标题：6-10 个字，大号加粗
-2. 副标题：10-20 个字，补充说明
-3. 要吸引眼球，适合手机竖屏
-
-格式：
-主标题：xxx
-副标题：xxx"""
-
-    result = _call_llm(prompt, system="你是一个短视频封面设计专家。")
-    if result:
-        lines = result.strip().split("\n")
-        main_title = ""
-        sub_title = ""
-        for line in lines:
-            if "主标题" in line:
-                main_title = line.split("：", 1)[-1].split(":", 1)[-1].strip()
-            elif "副标题" in line:
-                sub_title = line.split("：", 1)[-1].split(":", 1)[-1].strip()
-        return {"main": main_title or "AI 生成", "sub": sub_title or ""}
-    return {"main": "AI 生成", "sub": ""}
+    result = generate_all_copy(content)
+    return {"main": result["cover_main"], "sub": result["cover_sub"]}

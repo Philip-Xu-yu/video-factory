@@ -1,106 +1,162 @@
 """
-封面模块 - 自动生成视频封面
-从视频截帧 + 添加文字
+封面模块 - 用 Pillow 生成有设计感的封面
 """
 
 import os
-import re
 import subprocess
+from pathlib import Path
 from loguru import logger
-from core.font_utils import get_ffmpeg_font_filter
+
+try:
+    from PIL import Image, ImageDraw, ImageFont, ImageFilter
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
+    logger.warning("Pillow 未安装，封面功能降级")
 
 
-def extract_frame(video_path: str, output_path: str, time_sec: float = 1.0) -> str:
-    """从视频截取一帧作为封面底图"""
-    logger.info(f"截取封面帧: {time_sec}s")
-
-    cmd = [
-        "ffmpeg", "-y",
-        "-ss", str(time_sec),
-        "-i", video_path,
-        "-vframes", "1",
-        "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
-        output_path,
-    ]
-    subprocess.run(cmd, capture_output=True, timeout=30)
-
-    if os.path.exists(output_path):
-        logger.info(f"封面帧截取完成: {output_path}")
-        return output_path
-    return ""
-
-
-def add_cover_text(image_path: str, output_path: str,
-                   main_title: str, sub_title: str = "") -> str:
-    """在封面上添加文字"""
-    logger.info(f"添加封面文字: {main_title}")
-
-    safe_main = re.sub(r'[^\w\s·！？]', '', main_title)
-    safe_sub = re.sub(r'[^\w\s·！？]', '', sub_title)
-
-    font_filter = get_ffmpeg_font_filter()
-    if not font_filter:
-        import shutil
-        shutil.copy2(image_path, output_path)
-        return output_path
-
-    filters = [
-        "drawbox=x=0:y=ih/3:w=iw:h=ih/3:color=black@0.5:t=fill",
-        f"drawtext=text='{safe_main}':"
-        f"{font_filter}"
-        "fontsize=72:fontcolor=white:"
-        "x=(w-text_w)/2:y=(h-text_h)/2-40:"
-        "borderw=4:bordercolor=black",
-    ]
-
-    if safe_sub:
-        filters.append(
-            f"drawtext=text='{safe_sub}':"
-            f"{font_filter}"
-            "fontsize=36:fontcolor=white@0.9:"
-            "x=(w-text_w)/2:y=(h/2)+40:"
-            "borderw=2:bordercolor=black"
-        )
-
-    vf = ",".join(filters)
-
-    cmd = ["ffmpeg", "-y", "-i", image_path, "-vf", vf, output_path]
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-
-    if os.path.exists(output_path):
-        logger.info(f"封面生成完成: {output_path}")
-        return output_path
-
-    import shutil
-    shutil.copy2(image_path, output_path)
-    logger.warning("封面文字添加失败，返回原图")
-    return output_path
+def _get_font(size: int) -> "ImageFont.FreeTypeFont":
+    """获取中文字体"""
+    from core.font_utils import get_font_path
+    path = get_font_path()
+    if path and os.path.exists(path):
+        try:
+            return ImageFont.truetype(path, size)
+        except Exception:
+            pass
+    return ImageFont.load_default()
 
 
 def generate_cover(video_path: str, output_path: str,
                    main_title: str, sub_title: str = "") -> str:
-    """一键生成封面：截帧 + 加文字"""
-    probe_cmd = [
-        "ffprobe", "-v", "error",
-        "-show_entries", "format=duration",
-        "-of", "csv=p=0", video_path,
-    ]
+    """生成视频封面"""
+    if not HAS_PIL:
+        return _fallback_cover(video_path, output_path, main_title, sub_title)
+
+    # 截取视频帧作为背景
+    frame_path = output_path.replace(".jpg", "_frame.jpg")
+    _extract_frame(video_path, frame_path)
+
+    if not os.path.exists(frame_path):
+        # 没有帧就生成渐变背景
+        frame_path = output_path.replace(".jpg", "_bg.jpg")
+        _create_gradient_bg(frame_path)
+
+    try:
+        # 打开背景图
+        img = Image.open(frame_path).convert("RGB")
+        img = img.resize((1080, 1920), Image.LANCZOS)
+
+        # 高斯模糊背景
+        img = img.filter(ImageFilter.GaussianBlur(radius=8))
+
+        # 添加半透明遮罩
+        overlay = Image.new("RGBA", img.size, (0, 0, 0, 120))
+        img = Image.composite(Image.new("RGB", img.size, (0, 0, 0)), img.convert("RGB"), overlay.split()[3])
+
+        draw = ImageDraw.Draw(img)
+
+        # 主标题
+        if main_title:
+            font_main = _get_font(72)
+            # 计算文字位置（居中）
+            bbox = draw.textbbox((0, 0), main_title, font=font_main)
+            tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+            x = (1080 - tw) // 2
+            y = (1920 - th) // 2 - 60
+
+            # 文字阴影
+            draw.text((x + 3, y + 3), main_title, fill=(0, 0, 0, 200), font=font_main)
+            draw.text((x, y), main_title, fill=(255, 255, 255), font=font_main)
+
+        # 副标题
+        if sub_title:
+            font_sub = _get_font(36)
+            bbox_sub = draw.textbbox((0, 0), sub_title, font=font_sub)
+            tw_sub = bbox_sub[2] - bbox_sub[0]
+            x_sub = (1080 - tw_sub) // 2
+            y_sub = y + th + 40
+
+            draw.text((x_sub + 2, y_sub + 2), sub_title, fill=(0, 0, 0, 150), font=font_sub)
+            draw.text((x_sub, y_sub), sub_title, fill=(255, 255, 255, 220), font=font_sub)
+
+        # 底部品牌标识
+        font_brand = _get_font(24)
+        brand = "AI 视频工厂"
+        bbox_b = draw.textbbox((0, 0), brand, font=font_brand)
+        tw_b = bbox_b[2] - bbox_b[0]
+        draw.text(((1080 - tw_b) // 2, 1850), brand, fill=(255, 255, 255, 150), font=font_brand)
+
+        # 保存
+        img.save(output_path, "JPEG", quality=90)
+        logger.info(f"Pillow 封面生成: {output_path}")
+
+    except Exception as e:
+        logger.error(f"Pillow 封面失败: {e}")
+        return _fallback_cover(video_path, output_path, main_title, sub_title)
+    finally:
+        if os.path.exists(frame_path):
+            os.remove(frame_path)
+
+    return output_path
+
+
+def _extract_frame(video_path: str, output_path: str) -> str:
+    """从视频截帧"""
+    probe_cmd = ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                 "-of", "csv=p=0", video_path]
     result = subprocess.run(probe_cmd, capture_output=True, text=True, timeout=10)
     try:
         duration = float(result.stdout.strip())
     except (ValueError, AttributeError):
         duration = 10
-    mid_point = duration / 3
 
-    frame_path = output_path.replace(".jpg", "_frame.jpg")
-    extract_frame(video_path, frame_path, mid_point)
+    cmd = [
+        "ffmpeg", "-y", "-ss", str(duration / 3),
+        "-i", video_path, "-vframes", "1",
+        "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
+        output_path,
+    ]
+    subprocess.run(cmd, capture_output=True, timeout=30)
+    return output_path if os.path.exists(output_path) else ""
 
-    if not os.path.exists(frame_path):
+
+def _create_gradient_bg(output_path: str) -> str:
+    """创建渐变背景"""
+    if not HAS_PIL:
+        return ""
+    img = Image.new("RGB", (1080, 1920))
+    draw = ImageDraw.Draw(img)
+    for y in range(1920):
+        r = int(15 + (y / 1920) * 30)
+        g = int(12 + (y / 1920) * 20)
+        b = int(42 + (y / 1920) * 50)
+        draw.line([(0, y), (1080, y)], fill=(r, g, b))
+    img.save(output_path, "JPEG", quality=85)
+    return output_path
+
+
+def _fallback_cover(video_path: str, output_path: str, main_title: str, sub_title: str) -> str:
+    """降级：FFmpeg 文字叠加"""
+    import re
+    safe_title = re.sub(r'[^\w\s·！？]', '', main_title)
+    from core.font_utils import get_ffmpeg_font_filter
+    font_filter = get_ffmpeg_font_filter()
+    if not font_filter:
         return ""
 
-    final = add_cover_text(frame_path, output_path, main_title, sub_title)
-
-    if os.path.exists(frame_path) and frame_path != final:
-        os.remove(frame_path)
-
-    return final
+    cmd = [
+        "ffmpeg", "-y",
+        "-f", "lavfi", "-i", "color=c=0x1a1a2e:s=1080x1920:d=1",
+        "-vf", (
+            f"drawtext=text='{safe_title}':"
+            f"{font_filter}"
+            "fontsize=72:fontcolor=white:"
+            "x=(w-text_w)/2:y=(h-text_h)/2:"
+            "borderw=4:bordercolor=black"
+        ),
+        "-frames:v", "1",
+        output_path,
+    ]
+    subprocess.run(cmd, capture_output=True, timeout=30)
+    return output_path if os.path.exists(output_path) else ""
