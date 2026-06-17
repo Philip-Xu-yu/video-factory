@@ -126,12 +126,14 @@ def api_templates():
 
 # --- 用户系统 ---
 @app.post("/api/user/register")
-def api_register(req: RegisterRequest):
+def api_register(request: Request, req: RegisterRequest):
+    check_rate_limit(request)
     return register(req.username, req.password)
 
 
 @app.post("/api/user/login")
-def api_login(req: LoginRequest):
+def api_login(request: Request, req: LoginRequest):
+    check_rate_limit(request)
     result = login(req.username, req.password)
     if result.get("success"):
         result["token"] = generate_token(req.username)
@@ -146,7 +148,16 @@ def api_me(user: str = Depends(get_current_user)):
 
 
 @app.post("/api/user/upgrade")
-def api_upgrade(req: UpgradeRequest, user: str = Depends(get_current_user)):
+def api_upgrade(request: Request, req: UpgradeRequest, user: str = Depends(get_current_user)):
+    check_rate_limit(request)
+    # TODO: 接入支付验证（支付宝/微信支付回调确认后才执行升级）
+    # 目前仅允许从免费升级到付费，不允许反向降级
+    if req.plan not in ("pro", "business"):
+        raise HTTPException(status_code=400, detail="无效套餐")
+    # 占位：生产环境需要验证支付订单号
+    # payment_id = req.payment_id  # 需要在 UpgradeRequest 中添加
+    # if not verify_payment(payment_id):
+    #     raise HTTPException(status_code=402, detail="支付验证失败")
     return upgrade_plan(user, req.plan)
 
 

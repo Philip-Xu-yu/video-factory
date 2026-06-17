@@ -5,6 +5,7 @@
 import os
 import platform
 import subprocess
+import requests
 from pathlib import Path
 from loguru import logger
 

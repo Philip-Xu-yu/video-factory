@@ -77,6 +77,15 @@ for key in ["step", "extracted_copy", "rewritten_copy", "title", "cover_text", "
 if not st.session_state.template:
     st.session_state.template = "douyin"
 
+
+# ===== 工具函数（必须在使用前定义） =====
+def get_template_name(template_id: str, templates: list) -> str:
+    for t in templates:
+        if t["id"] == template_id:
+            return f"{t['name']} - {t['desc']}"
+    return "抖音热门"
+
+
 # ===== 模式选择 =====
 mode = st.radio(
     "选择模式",
@@ -341,11 +350,3 @@ if history:
                                            mime="video/mp4", key=f"dl_{h.get('task_id')}")
 else:
     st.info("暂无历史记录")
-
-
-# ===== 工具函数 =====
-def get_template_name(template_id: str, templates: list) -> str:
-    for t in templates:
-        if t["id"] == template_id:
-            return f"{t['name']} - {t['desc']}"
-    return "抖音热门"

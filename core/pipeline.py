@@ -44,6 +44,17 @@ def process_video(input_path: str, template: str, output_dir: str,
     base = Path(input_path).stem
     tmpl = get_template(template)
 
+    try:
+        return _process_video_inner(input_path, template, output_dir, voice, progress_callback, start, task_dir, base, tmpl)
+    except Exception as e:
+        logger.error(f"视频处理失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"error": f"处理失败: {str(e)}"}
+
+
+def _process_video_inner(input_path, template, output_dir, voice, progress_callback, start, task_dir, base, tmpl):
+    """视频处理核心逻辑"""
     # 1. 语音识别（GPU 加速）
     _report(5, "🎙️ GPU 语音识别...", progress_callback)
     segments = transcribe(input_path, model_size="base")
@@ -103,9 +114,9 @@ def process_video(input_path: str, template: str, output_dir: str,
     parts = [p for p in [intro_path, with_bgm_path, outro_path] if p and os.path.exists(p)]
     concat_videos(parts, final_path)
 
-    # 清理中间文件
+    # 清理中间文件（不删除原始输入文件）
     for f in [edited_path, cropped_path, subtitled_path, with_bgm_path, intro_path, outro_path]:
-        if os.path.exists(f) and f != final_path:
+        if os.path.exists(f) and f != final_path and f != input_path:
             os.remove(f)
 
     elapsed = time.time() - start
@@ -139,6 +150,17 @@ def process_text_to_video(text: str, template: str, output_dir: str,
     task_dir = create_task_dir(output_dir)
     tmpl = get_template(template)
 
+    try:
+        return _process_text_inner(text, template, output_dir, voice, progress_callback, start, task_dir, tmpl)
+    except Exception as e:
+        logger.error(f"文字转视频失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"error": f"处理失败: {str(e)}"}
+
+
+def _process_text_inner(text, template, output_dir, voice, progress_callback, start, task_dir, tmpl):
+    """文字转视频核心逻辑"""
     # 1. 一次 LLM 生成所有文案
     _report(10, "✍️ AI 优化文案...", progress_callback)
     copy_data = generate_all_copy(text, template)
@@ -147,7 +169,7 @@ def process_text_to_video(text: str, template: str, output_dir: str,
     # 2. 声音克隆
     _report(25, "🎙️ 声音合成...", progress_callback)
     audio_path = os.path.join(task_dir, "tts_audio.mp3")
-    voice_clone(final_copy, voice_style="温柔女声", output_path=audio_path)
+    voice_clone(final_copy, voice_style=voice, output_path=audio_path)
 
     # 3. 生成黑底视频
     _report(40, "🎬 生成视频...", progress_callback)

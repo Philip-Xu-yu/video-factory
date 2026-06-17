@@ -29,6 +29,9 @@ def remove_silence(video_path: str, output_path: str,
 
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
 
+    if result.returncode != 0:
+        logger.warning(f"auto-editor 失败: {result.stderr[:200]}")
+
     if os.path.exists(output_path):
         logger.info(f"去静音完成: {output_path}")
         return output_path
@@ -60,6 +63,9 @@ def crop_vertical(video_path: str, output_path: str) -> str:
     ]
 
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+
+    if result.returncode != 0:
+        logger.warning(f"裁剪失败: {result.stderr[:200]}")
 
     if os.path.exists(output_path):
         logger.info(f"裁剪完成: {output_path}")

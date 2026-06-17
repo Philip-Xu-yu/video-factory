@@ -56,17 +56,19 @@ def generate_cover(video_path: str, output_path: str,
 
         draw = ImageDraw.Draw(img)
 
+        # 默认位置（居中）
+        y = 1920 // 2 - 60
+        th = 0
+
         # 主标题
         if main_title:
             font_main = _get_font(72)
-            # 计算文字位置（居中）
             bbox = draw.textbbox((0, 0), main_title, font=font_main)
             tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
             x = (1080 - tw) // 2
             y = (1920 - th) // 2 - 60
 
-            # 文字阴影
-            draw.text((x + 3, y + 3), main_title, fill=(0, 0, 0, 200), font=font_main)
+            draw.text((x + 3, y + 3), main_title, fill=(0, 0, 0), font=font_main)
             draw.text((x, y), main_title, fill=(255, 255, 255), font=font_main)
 
         # 副标题
@@ -77,8 +79,8 @@ def generate_cover(video_path: str, output_path: str,
             x_sub = (1080 - tw_sub) // 2
             y_sub = y + th + 40
 
-            draw.text((x_sub + 2, y_sub + 2), sub_title, fill=(0, 0, 0, 150), font=font_sub)
-            draw.text((x_sub, y_sub), sub_title, fill=(255, 255, 255, 220), font=font_sub)
+            draw.text((x_sub + 2, y_sub + 2), sub_title, fill=(0, 0, 0), font=font_sub)
+            draw.text((x_sub, y_sub), sub_title, fill=(255, 255, 255), font=font_sub)
 
         # 底部品牌标识
         font_brand = _get_font(24)
