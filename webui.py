@@ -16,6 +16,7 @@ from core.copywriter import extract_copy, rewrite_copy, generate_title, generate
 from core.voice_clone import voice_clone, FISH_API_KEY, FISH_VOICES
 from core.pipeline import process_video, process_text_to_video
 from core.templates import list_templates
+from core.history import get_history, delete_history
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(os.path.join(BASE_DIR, "output"), exist_ok=True)
@@ -335,3 +336,26 @@ if st.button("🚀 一键出片（全流程）", use_container_width=True, type=
                 st.markdown(f"**📌 {result['title']}**")
     else:
         st.warning("请先在第 1 步上传视频")
+
+# ===== 历史记录 =====
+st.markdown("---")
+st.markdown("### 📋 历史记录")
+
+history = get_history(10)
+if history:
+    for h in history:
+        col1, col2, col3 = st.columns([4, 2, 1])
+        with col1:
+            st.markdown(f"**{h.get('title', '未命名')}**")
+            st.caption(f"{h.get('time_str', '')} | {h.get('elapsed', 0):.0f}s")
+        with col2:
+            if h.get("output_path") and os.path.exists(h["output_path"]):
+                st.video(h["output_path"])
+        with col3:
+            if h.get("output_path") and os.path.exists(h["output_path"]):
+                with open(h["output_path"], "rb") as f:
+                    st.download_button("⬇️", f.read(),
+                                       file_name=f"{h.get('task_id', 'video')}.mp4",
+                                       mime="video/mp4", key=f"dl_{h.get('task_id')}")
+else:
+    st.info("暂无历史记录")

@@ -1,12 +1,37 @@
 """
-字体工具 - 自动检测系统字体路径
+字体工具 - 自动检测 + 自动下载
 """
 
 import os
 import platform
+import subprocess
+from pathlib import Path
 from loguru import logger
 
 _font_path = None
+FONT_DIR = Path(__file__).parent.parent / "fonts"
+FONT_DIR.mkdir(exist_ok=True)
+
+# 免费中文字体下载地址
+FONT_URLS = {
+    "NotoSansSC-Regular.ttf": "https://github.com/google/fonts/raw/main/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf",
+}
+
+
+def _download_font():
+    """下载免费中文字体"""
+    for name, url in FONT_URLS.items():
+        target = FONT_DIR / name
+        if target.exists():
+            continue
+        logger.info(f"下载字体: {name}")
+        try:
+            resp = requests.get(url, timeout=30)
+            resp.raise_for_status()
+            target.write_bytes(resp.content)
+            logger.info(f"字体下载完成: {target}")
+        except Exception as e:
+            logger.warning(f"字体下载失败: {e}")
 
 
 def get_font_path() -> str:
@@ -15,8 +40,14 @@ def get_font_path() -> str:
     if _font_path:
         return _font_path
 
-    system = platform.system()
+    # 1. 检查本地 fonts 目录
+    for f in FONT_DIR.iterdir():
+        if f.suffix.lower() in (".ttf", ".otf", ".ttc"):
+            _font_path = str(f)
+            return _font_path
 
+    # 2. 检查系统字体
+    system = platform.system()
     candidates = []
     if system == "Windows":
         candidates = [
@@ -24,12 +55,12 @@ def get_font_path() -> str:
             "C:/Windows/Fonts/msyhbd.ttc",
             "C:/Windows/Fonts/simsun.ttc",
         ]
-    elif system == "Darwin":  # macOS
+    elif system == "Darwin":
         candidates = [
             "/System/Library/Fonts/PingFang.ttc",
             "/System/Library/Fonts/STHeiti Medium.ttc",
         ]
-    else:  # Linux
+    else:
         candidates = [
             "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
             "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
@@ -40,12 +71,10 @@ def get_font_path() -> str:
     for path in candidates:
         if os.path.exists(path):
             _font_path = path.replace("\\", "/")
-            logger.info(f"使用字体: {_font_path}")
             return _font_path
 
-    # 尝试 fc-list 查找
+    # 3. 尝试 fc-list
     try:
-        import subprocess
         result = subprocess.run(
             ["fc-list", ":lang=zh", "-f", "%{file}\n"],
             capture_output=True, text=True, timeout=5,
@@ -56,7 +85,18 @@ def get_font_path() -> str:
     except Exception:
         pass
 
-    logger.warning("未找到中文字体，FFmpeg 文字渲染可能失败")
+    # 4. 下载字体
+    try:
+        import requests
+        _download_font()
+        for f in FONT_DIR.iterdir():
+            if f.suffix.lower() in (".ttf", ".otf", ".ttc"):
+                _font_path = str(f)
+                return _font_path
+    except Exception:
+        pass
+
+    logger.warning("未找到中文字体")
     return ""
 
 
@@ -65,6 +105,5 @@ def get_ffmpeg_font_filter() -> str:
     path = get_font_path()
     if not path:
         return ""
-    # FFmpeg 需要转义冒号和反斜杠
     safe = path.replace("\\", "/").replace(":", "\\:")
     return f"fontfile={safe}:"

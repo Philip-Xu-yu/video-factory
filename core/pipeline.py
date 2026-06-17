@@ -1,6 +1,6 @@
 """
 视频工厂主流程 v4 - 优化版
-优化: LLM 1次调用 + FFmpeg 合并 + GPU 加速 + 实时进度
+优化: LLM 1次调用 + GPU 加速 + 实时进度 + 历史记录 + 素材匹配
 """
 
 import os
@@ -13,6 +13,7 @@ from loguru import logger
 
 from core.asr import transcribe
 from core.voice_clone import voice_clone
+from core.history import add_history
 from core.editor import remove_silence, crop_vertical
 from core.subtitle import generate_srt, burn_subtitles
 from core.bgm import get_bgm_for_template, mix_bgm
@@ -110,8 +111,15 @@ def process_video(input_path: str, template: str, output_dir: str,
     elapsed = time.time() - start
     _report(100, f"✅ 完成! 耗时 {elapsed:.0f}秒", progress_callback)
 
+    task_id = os.path.basename(task_dir)
+    add_history({
+        "task_id": task_id, "type": "video", "template": template,
+        "title": copy_data.get("title", ""), "duration": 0,
+        "elapsed": round(elapsed, 1), "output_path": final_path,
+    })
+
     return {
-        "task_id": os.path.basename(task_dir),
+        "task_id": task_id,
         "output_path": final_path,
         "srt_path": srt_path,
         "cover_path": cover_path if os.path.exists(cover_path) else "",
@@ -204,8 +212,15 @@ def process_text_to_video(text: str, template: str, output_dir: str,
     elapsed = time.time() - start
     _report(100, f"✅ 完成! 耗时 {elapsed:.0f}秒", progress_callback)
 
+    task_id = os.path.basename(task_dir)
+    add_history({
+        "task_id": task_id, "type": "video", "template": template,
+        "title": copy_data.get("title", ""), "duration": 0,
+        "elapsed": round(elapsed, 1), "output_path": final_path,
+    })
+
     return {
-        "task_id": os.path.basename(task_dir),
+        "task_id": task_id,
         "output_path": final_path,
         "srt_path": srt_path,
         "cover_path": cover_path if os.path.exists(cover_path) else "",
