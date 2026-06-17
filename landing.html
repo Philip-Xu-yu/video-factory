@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>视频工厂 - 3 分钟出片</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #fafaf9;
+        --text: #1c1917;
+        --muted: #78716c;
+        --accent: #292524;
+        --border: #e7e5e4;
+        --card: #ffffff;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
+          "PingFang SC", "Noto Sans CJK SC", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* 导航 */
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 5%;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .logo {
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+        margin-left: 2rem;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--text);
+      }
+
+      /* Hero */
+      .hero {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 6rem 5% 4rem;
+        text-align: center;
+      }
+      .hero-badge {
+        display: inline-block;
+        padding: 0.35rem 1rem;
+        background: var(--accent);
+        color: white;
+        border-radius: 100px;
+        font-size: 0.8rem;
+        margin-bottom: 2rem;
+      }
+      .hero h1 {
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+      }
+      .hero p {
+        font-size: 1.2rem;
+        color: var(--muted);
+        max-width: 600px;
+        margin: 0 auto 3rem;
+      }
+      .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .hero-cta:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      /* 产品截图 */
+      .product-showcase {
+        max-width: 1000px;
+        margin: 0 auto 6rem;
+        padding: 0 5%;
+      }
+      .showcase-frame {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow:
+          0 1px 3px rgba(0, 0, 0, 0.04),
+          0 8px 32px rgba(0, 0, 0, 0.06);
+      }
+      .showcase-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .showcase-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #e5e5e5;
+      }
+      .showcase-content {
+        padding: 3rem;
+        text-align: center;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .showcase-content h3 {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--muted);
+        margin-bottom: 1rem;
+      }
+      .upload-area {
+        border: 2px dashed var(--border);
+        border-radius: 12px;
+        padding: 3rem 4rem;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .upload-area:hover {
+        border-color: var(--accent);
+      }
+      .upload-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+      .upload-text {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      /* 流程 */
+      .process {
+        max-width: 1000px;
+        margin: 0 auto 6rem;
+        padding: 0 5%;
+      }
+      .section-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin-bottom: 1rem;
+      }
+      .section-title {
+        font-size: 2rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        margin-bottom: 3rem;
+      }
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+      }
+      .step {
+        padding: 2rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+      }
+      .step-num {
+        display: inline-block;
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        text-align: center;
+        background: var(--accent);
+        color: white;
+        border-radius: 50%;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+      .step h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+      .step p {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      /* 功能 */
+      .features {
+        max-width: 1000px;
+        margin: 0 auto 6rem;
+        padding: 0 5%;
+      }
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+      }
+      .feature-card {
+        padding: 2rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+      }
+      .feature-card h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+      .feature-card p {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      /* 对比 */
+      .compare {
+        max-width: 800px;
+        margin: 0 auto 6rem;
+        padding: 0 5%;
+      }
+      .compare-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .compare-table th,
+      .compare-table td {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+      .compare-table th {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        font-weight: 500;
+      }
+      .compare-table td {
+        font-size: 0.9rem;
+      }
+      .compare-table tr:last-child td {
+        border-bottom: none;
+      }
+      .check {
+        color: #16a34a;
+      }
+      .cross {
+        color: #dc2626;
+      }
+
+      /* 定价 */
+      .pricing {
+        max-width: 900px;
+        margin: 0 auto 6rem;
+        padding: 0 5%;
+      }
+      .price-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+      }
+      .price-card {
+        padding: 2rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        text-align: center;
+      }
+      .price-card.featured {
+        border-color: var(--accent);
+        position: relative;
+      }
+      .price-card.featured::before {
+        content: "推荐";
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: white;
+        padding: 0.2rem 0.8rem;
+        border-radius: 100px;
+        font-size: 0.75rem;
+      }
+      .price-name {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+      .price-amount {
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+      .price-unit {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+      .price-features {
+        list-style: none;
+        margin: 1.5rem 0;
+        text-align: left;
+      }
+      .price-features li {
+        padding: 0.4rem 0;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .price-features li::before {
+        content: "✓ ";
+        color: #16a34a;
+      }
+      .price-btn {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: transparent;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .price-btn:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+
+      /* CTA */
+      .cta {
+        max-width: 700px;
+        margin: 0 auto 6rem;
+        padding: 4rem 5%;
+        text-align: center;
+      }
+      .cta h2 {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+      .cta p {
+        color: var(--muted);
+        margin-bottom: 2rem;
+      }
+
+      /* Footer */
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 2rem 5%;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      /* 移动端 */
+      @media (max-width: 768px) {
+        .steps,
+        .feature-grid,
+        .price-grid {
+          grid-template-columns: 1fr;
+        }
+        .hero h1 {
+          font-size: 2rem;
+        }
+        .nav-links {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="logo">视频工厂</div>
+      <div class="nav-links">
+        <a href="#process">流程</a>
+        <a href="#features">功能</a>
+        <a href="#pricing">定价</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-badge">内测中 · 免费体验</div>
+      <h1>3 分钟，把口播<br />变成爆款短视频</h1>
+      <p>
+        上传视频，AI
+        自动完成剪辑、字幕、配乐、封面。不用学剪辑，不用找素材，直接出片。
+      </p>
+      <a href="#pricing" class="hero-cta">免费开始 →</a>
+    </section>
+
+    <section class="product-showcase">
+      <div class="showcase-frame">
+        <div class="showcase-bar">
+          <div class="showcase-dot"></div>
+          <div class="showcase-dot"></div>
+          <div class="showcase-dot"></div>
+        </div>
+        <div class="showcase-content">
+          <h3>把视频拖到这里</h3>
+          <div class="upload-area">
+            <div class="upload-icon">↑</div>
+            <div class="upload-text">支持 MP4、MOV、AVI · 最大 500MB</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="process" id="process">
+      <div class="section-label">流程</div>
+      <div class="section-title">三步出片</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>上传视频</h3>
+          <p>拍完口播，直接上传。手机拍的、相机拍的都行。</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>选个风格</h3>
+          <p>抖音、小红书、视频号，一键适配不同平台。</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>下载成品</h3>
+          <p>3 分钟后，带字幕、配乐、封面的视频就做好了。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="section-label">功能</div>
+      <div class="section-title">你需要的，我们都做了</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>自动剪辑</h3>
+          <p>识别并删除停顿、重复、口头禅，保留精华内容。</p>
+        </div>
+        <div class="feature-card">
+          <h3>智能字幕</h3>
+          <p>自动生成中文字幕，支持抖音黄字、简约白字等多种风格。</p>
+        </div>
+        <div class="feature-card">
+          <h3>文案生成</h3>
+          <p>AI 自动提取视频核心观点，改写成适合短视频的文案。</p>
+        </div>
+        <div class="feature-card">
+          <h3>自动生成标题</h3>
+          <p>根据内容生成 3 个标题选项，选一个直接用。</p>
+        </div>
+        <div class="feature-card">
+          <h3>封面设计</h3>
+          <p>自动截取视频精彩画面，加上排版好的标题文字。</p>
+        </div>
+        <div class="feature-card">
+          <h3>背景音乐</h3>
+          <p>自动匹配节奏合适的背景音乐，人声和 BGM 音量自动平衡。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="compare">
+      <div class="section-label">对比</div>
+      <div class="section-title">和传统方式的区别</div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>传统剪辑</th>
+            <th>视频工厂</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>学习成本</td>
+            <td>需要学剪映/PR</td>
+            <td class="check">不用学，直接用</td>
+          </tr>
+          <tr>
+            <td>制作时间</td>
+            <td>1-2 小时</td>
+            <td class="check">3 分钟</td>
+          </tr>
+          <tr>
+            <td>字幕</td>
+            <td>手动打字</td>
+            <td class="check">自动生成</td>
+          </tr>
+          <tr>
+            <td>配乐</td>
+            <td>自己找音乐</td>
+            <td class="check">自动匹配</td>
+          </tr>
+          <tr>
+            <td>封面</td>
+            <td>手动设计</td>
+            <td class="check">自动生成</td>
+          </tr>
+          <tr>
+            <td>请人剪辑</td>
+            <td>50-200 元/条</td>
+            <td class="check">不限量</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pricing" id="pricing">
+      <div class="section-label">定价</div>
+      <div class="section-title">选一个适合你的方案</div>
+      <div class="price-grid">
+        <div class="price-card">
+          <div class="price-name">免费版</div>
+          <div class="price-amount">¥0</div>
+          <div class="price-unit">永久</div>
+          <ul class="price-features">
+            <li>每天 3 个视频</li>
+            <li>基础字幕风格</li>
+            <li>带水印</li>
+          </ul>
+          <button class="price-btn">免费体验</button>
+        </div>
+        <div class="price-card featured">
+          <div class="price-name">基础版</div>
+          <div class="price-amount">¥29</div>
+          <div class="price-unit">/月</div>
+          <ul class="price-features">
+            <li>每天 30 个视频</li>
+            <li>全部字幕风格</li>
+            <li>无水印</li>
+            <li>自动生成标题</li>
+          </ul>
+          <button class="price-btn">开始使用</button>
+        </div>
+        <div class="price-card">
+          <div class="price-name">专业版</div>
+          <div class="price-amount">¥99</div>
+          <div class="price-unit">/月</div>
+          <ul class="price-features">
+            <li>不限量视频</li>
+            <li>声音克隆</li>
+            <li>数字人口播</li>
+            <li>优先处理</li>
+          </ul>
+          <button class="price-btn">开始使用</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <h2>现在就开始</h2>
+      <p>不用注册，不用付费。上传视频，3 分钟后下载成品。</p>
+      <a href="#" class="hero-cta">免费体验 →</a>
+    </section>
+
+    <footer>
+      <p>© 2024 视频工厂 · 用 AI 让视频制作更简单</p>
+    </footer>
+  </body>
+</html>
